@@ -1,0 +1,21 @@
+import math
+
+# Input values
+T = float(input("Enter the torsion (kN-m): "))
+F = float(input("Enter the thrust (kN): "))
+FS = float(input("Enter the factor of safety: "))
+
+# Material properties
+tau_allow = 75.0  # Allowable shear stress for the material in MPa
+w_allow = 0.8     # Allowable wear for the material
+
+# Calculation of shear key dimensions
+d = math.sqrt((16 * T) / (math.pi * tau_allow * FS))
+w = w_allow * d
+l = F / (tau_allow * w * d)
+
+# Output values
+print("The required dimensions of the shear key are:")
+print("Width (w) = {:.2f} mm".format(w))
+print("Depth (d) = {:.2f} mm".format(d))
+print("Length (l) = {:.2f} mm".format(l))
