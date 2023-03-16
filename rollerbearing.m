@@ -1,17 +1,63 @@
 % Input parameters
-P_x = 5000; % Radial load (N)
-P_y = 2000; % Thrust load (N)
+fr = 5000; % Radial load (N)
+fa = 2000; % Thrust load (N)
 f = 2; % Factor of safety
+appfact = 1;
+RPM = 200;
+lr = 10^6;
+ld = RPM * 10 * 365 * 24 * 60; %number of turns
+xd = ld/lr;
+v = 1; %1.2 for outer ring rotates 1 for inner
+xo = .02;
+b = 1.483;
+sigma = 4.459;
+a = 3;
+Rd=.99;
 
+ 
 % Calculation
-P_r = sqrt(P_x^2 + P_y^2); % Equivalent radial load (N)
-C_r = P_r/f; % Radial load capacity (N)
-C_a = P_y/f; % Axial load capacity (N)
+c_10_bearing = bearing_table(i, c_10_col);
+c_0_bearing = bearing_table(i, c_0_col);
 
-% Load bearing catalog and find suitable bearing
-load('bearing_catalog.mat'); % This assumes a bearing catalog is saved as a .mat file with variables for the bearing specifications
-suitable_bearings = catalog(C_r <= catalog(:,2) & C_a <= catalog(:,5),:); % Find all bearings with a radial load capacity and axial load capacity greater than or equal to the calculated capacities
-chosen_bearing = suitable_bearings(1,:); % Choose the first bearing that meets the requirements (this assumes the catalog is sorted by increasing load capacity)
+repeat =True;
+while repeat == True
 
-% Output result
-disp(['Chosen bearing: ' chosen_bearing(1) ' with bore size ' num2str(chosen_bearing(3)) ' mm and outer diameter ' num2str(chosen_bearing(4)) ' mm.']);
+%calculate fa_c0
+
+fa_c0 = fa/c_0_bearing;
+
+[miniumm, position] = min(abs(Fa_co - a(:,1)));
+
+
+Fa_v_fr = Fa/v/fr;
+
+e = a(position,2);
+
+if Fa_v_fr <=e
+    x2_col = 3;
+    y2_col = 4;
+else
+    x2_col = 5;
+    y2_col = 6;
+
+end
+x = a(position,x2_col);
+y = a(position,y2_col);
+
+%calculate F effective
+fd=x*v*fr+Y*fa;
+
+%calculate C10_calc
+C10_calc=appfact*fd*(xd/(xo+(sigma-xo)*(ln(1/Rd)^(1/b))))^(1/a);
+
+if c10_calc < c_10_bearing 
+    repeat = false;
+end
+i = i+1;
+%retrieve new C_10 and c_0 values from table(i+1);
+c_10_bearing = bearing_table(i, c_10_col);
+c_0_bearing = bearing_table(i, c_0_col);
+
+end
+
+
